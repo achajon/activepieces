@@ -70,6 +70,9 @@
       "@activepieces/piece-bubble": [
         "packages/pieces/community/bubble/src/index.ts"
       ],
+      "@activepieces/piece-bullseye": [
+        "packages/pieces/community/bullseye/src/index.ts"
+      ],
       "@activepieces/piece-cal-com": [
         "packages/pieces/community/cal-com/src/index.ts"
       ],
@@ -169,6 +172,9 @@
       ],
       "@activepieces/piece-gcloud-pubsub": [
         "packages/pieces/community/gcloud-pubsub/src/index.ts"
+      ],
+      "@activepieces/piece-gelato": [
+        "packages/pieces/community/gelato/src/index.ts"
       ],
       "@activepieces/piece-generatebanners": [
         "packages/pieces/community/generatebanners/src/index.ts"

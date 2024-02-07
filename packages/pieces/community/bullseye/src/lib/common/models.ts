@@ -1,0 +1,38 @@
+export type Lead = {
+    Address1: string;
+    Address2: string;
+    Address3: string;
+    Address4: string;
+    City: string;
+    ClientId: number;
+    Comments: string;
+    CompanyName: string;
+    CountryId: number;
+    CountryName: string;
+    CreatedByMemberId: null | number;
+    DateCreated: string;
+    DateLastModified: string;
+    EmailAddress: string;
+    FirstName: string;
+    FormID: number;
+    Id: number;
+    InternationalAddress: null;
+    LastName: string;
+    LeadSourceID: number;
+    LeadType: string;
+    LeadTypeID: null | number;
+    PhoneNumber: string;
+    PostalCode: string;
+    PriorityID: number;
+    PriorityName: string;
+    SourceName: string;
+    StateAbbr: string;
+    StateId: null | number;
+    Status: null | string;
+    ThirdPartyID: null;
+    Attributes: any[];
+    Categories: any[];
+    LocationID: number;
+    StatusID: number;
+    StatusName: string;
+}

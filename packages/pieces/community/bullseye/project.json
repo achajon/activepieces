@@ -1,0 +1,43 @@
+{
+  "name": "pieces-bullseye",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/community/bullseye/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/community/bullseye",
+        "tsConfig": "packages/pieces/community/bullseye/tsconfig.lib.json",
+        "packageJson": "packages/pieces/community/bullseye/package.json",
+        "main": "packages/pieces/community/bullseye/src/index.ts",
+        "assets": [
+          "packages/pieces/community/bullseye/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies",
+        "updateBuildableProjectDepsInPackageJson": true
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs pieces-bullseye {args.ver} {args.tag}",
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/community/bullseye/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": []
+}
