@@ -12,7 +12,8 @@ export const getNewLead = createAction({
   async run(context) {
     const res = await httpClient.sendRequest<string[]>({
       method: HttpMethod.GET,
-      url: `http://ws.bullseyelocations.com/RestLead.svc/GetLeads?ClientId=${context.auth.username}&ApiKey=${context.auth.password}&CreatedAfter=12%2F24%2F2023`,
+      url: "http://pending.com"
+      //url: `http://ws.bullseyelocations.com/RestLead.svc/GetLeads?ClientId=${context.auth.username}&ApiKey=${context.auth.password}&CreatedAfter=12%2F24%2F2023`,
     });
     return res.body;
   },

@@ -1,8 +1,8 @@
 
 import { createTrigger, TriggerStrategy, PiecePropValueSchema } from '@activepieces/pieces-framework';
-import { DedupeStrategy, HttpMethod, HttpRequest, Polling, httpClient, pollingHelper } from '@activepieces/pieces-common';
+import { AuthenticationType, DedupeStrategy, HttpMethod, HttpRequest, Polling, httpClient, pollingHelper } from '@activepieces/pieces-common';
 import { bullseyeAuth } from '../..';
-import { Lead } from "../common/models"
+import { Leads, Lead } from "../common/models"
 import dayjs from 'dayjs';
 
 // replace auth with piece auth varible
@@ -19,38 +19,26 @@ const polling: Polling<PiecePropValueSchema<typeof bullseyeAuth>, Record<string,
         // }
 
         console.log({ lastFetchEpochMS })
+        console.log({ lastEpochMSString: dayjs(lastFetchEpochMS).toISOString() })
 
         const request: HttpRequest = {
             method: HttpMethod.GET,
-            url: `http://ws.bullseyelocations.com/RestLead.svc/GetLeads?ClientId=${auth.username}&ApiKey=${auth.password}&CreatedAfter=${lastFetchEpochMS === 0 ? "12/01/2023" : dayjs(lastFetchEpochMS).format("MM/DD/YYYY")}`, // 12%2F24%2F2024
+            // url: `http://ws.bullseyelocations.com/RestLead.svc/GetLeads?ClientId=${auth.username}&ApiKey=${auth.password}&CreatedAfter=${lastFetchEpochMS === 0 ? "12/01/2023" : dayjs(lastFetchEpochMS).format("MM/DD/YYYY")}`, // 12%2F24%2F2024
+            url: `https://api.bullseyelocations-staging.com/api/lead?filter=dateCreated>=${lastFetchEpochMS === 0 ? "12/01/2022" : dayjs(lastFetchEpochMS).toISOString()}&pageSize=100&v=1.7`,
+            authentication: { token: auth.access_token, type: AuthenticationType.BEARER_TOKEN }
+
         };
         console.log("My URL", request.url);
         const res = await httpClient.sendRequest(request);
-        const leads: Lead[] = (res.body as Lead[]) ?? [];
+        const leads: Leads = (res.body as Leads);
 
-        const transformDate = (stringDate: string): Date => {
-            // Extract details  
-            const parts = stringDate.match(/\/Date\((-?\d+)(.+?)\)/);
+        return leads.data.map((lead: Lead) => {
 
-            if (parts !== null) {
-                const millis = parts[1];
-                const timezone = parts[2];
-
-                // Parse timezone offset (in minutes)
-                const timezoneOffset = Number(timezone) * 60 * 1000;
-
-                // Create Date object with timezone offset
-                return new Date(Number(millis) + timezoneOffset);
-            }
-
-            return new Date();
+            return ({
+                epochMilliSeconds: dayjs(lead.dateCreated).valueOf(),
+                data: lead,
+            })
         }
-
-
-        return leads.map((lead: Lead) => ({
-            epochMilliSeconds: dayjs(transformDate(lead.DateCreated)).valueOf(),
-            data: lead,
-        })
         );
     }
 }
@@ -70,6 +58,7 @@ export const newLeadCreated = createTrigger({
     },
     async onEnable(context) {
         const { store, auth, propsValue } = context;
+        store.put("lastPoll", 0);
         await pollingHelper.onEnable(polling, { store, auth, propsValue });
     },
 
