@@ -1,15 +1,16 @@
 
 import { createTrigger, TriggerStrategy, PiecePropValueSchema } from '@activepieces/pieces-framework';
 import { AuthenticationType, DedupeStrategy, HttpMethod, HttpRequest, Polling, httpClient, pollingHelper } from '@activepieces/pieces-common';
-import { bullseyeAuth } from '../..';
+import { bullseyeAuth } from '../auth';
 import { Leads, Lead } from "../common/models"
 import dayjs from 'dayjs';
+import { getAuthToken } from '../api';
 
 // replace auth with piece auth varible
 const polling: Polling<PiecePropValueSchema<typeof bullseyeAuth>, Record<string, never>> = {
     strategy: DedupeStrategy.TIMEBASED,
 
-    items: async ({ auth, propsValue, lastFetchEpochMS }) => {
+    items: async ({ auth, lastFetchEpochMS }) => {
         // implement the logic to fetch the items
         // const items = [ {id: 1, created_date: '2021-01-01T00:00:00Z'}, {id: 2, created_date: '2021-01-01T00:00:00Z'}];
         // return items.map((item) => ({
@@ -17,18 +18,21 @@ const polling: Polling<PiecePropValueSchema<typeof bullseyeAuth>, Record<string,
         //     data: item,
         //     }));
         // }
+        const accessTokenResponse = await getAuthToken(auth);
 
-        console.log({ lastFetchEpochMS })
-        console.log({ lastEpochMSString: dayjs(lastFetchEpochMS).toISOString() })
+        if (!accessTokenResponse.accessToken) {
+            throw new Error(
+                'Authentication failed. Please check your credentials and try again.'
+            );
+        }
 
         const request: HttpRequest = {
             method: HttpMethod.GET,
             // url: `http://ws.bullseyelocations.com/RestLead.svc/GetLeads?ClientId=${auth.username}&ApiKey=${auth.password}&CreatedAfter=${lastFetchEpochMS === 0 ? "12/01/2023" : dayjs(lastFetchEpochMS).format("MM/DD/YYYY")}`, // 12%2F24%2F2024
-            url: `https://api.bullseyelocations-staging.com/api/lead?filter=dateCreated>=${lastFetchEpochMS === 0 ? "12/01/2022" : dayjs(lastFetchEpochMS).toISOString()}&pageSize=100&v=1.7`,
-            authentication: { token: auth.access_token, type: AuthenticationType.BEARER_TOKEN }
-
+            url: `https://api.bullseyelocations-staging.com/api/lead?filter=dateCreated>=${lastFetchEpochMS === 0 ? "12/01/2022" : dayjs(lastFetchEpochMS).toISOString()}&pageSize=100&v=1.8&includeVirtualDeleted=false&includeProperties=Attributes`,
+            authentication: { token: accessTokenResponse.accessToken || "", type: AuthenticationType.BEARER_TOKEN }
         };
-        console.log("My URL", request.url);
+
         const res = await httpClient.sendRequest(request);
         const leads: Leads = (res.body as Leads);
 

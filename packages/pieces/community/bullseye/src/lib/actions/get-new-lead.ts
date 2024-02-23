@@ -1,6 +1,6 @@
 import { createAction, Property } from '@activepieces/pieces-framework';
 import { httpClient, HttpMethod } from '@activepieces/pieces-common';
-import { bullseyeAuth } from '../..';
+import { bullseyeAuth } from '../auth';
 
 export const getNewLead = createAction({
   // auth: check https://www.activepieces.com/docs/developers/piece-reference/authentication,

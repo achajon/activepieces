@@ -49,11 +49,13 @@ async function claim({ request }: ClaimOAuth2Request): Promise<OAuth2ConnectionV
             default:
                 throw new Error(`Unknown authorization method: ${authorizationMethod}`)
         }
+
         const response = (
             await axios.post(request.tokenUrl, new URLSearchParams(body), {
                 headers,
             })
         ).data
+
         return {
             type: AppConnectionType.OAUTH2,
             ...oauth2Util.formatOAuth2Response(response),
@@ -77,8 +79,6 @@ async function claim({ request }: ClaimOAuth2Request): Promise<OAuth2ConnectionV
     }
 }
 
-
-
 async function refresh(
     { connectionValue }: RefreshOAuth2Request<OAuth2ConnectionValueWithApp>,
 ): Promise<OAuth2ConnectionValueWithApp> {
@@ -88,7 +88,7 @@ async function refresh(
     }
     const body: Record<string, string> = {}
     switch (connectionValue.grant_type) {
-        case OAuth2GrantType.AUTHORIZATION_CODE: { 
+        case OAuth2GrantType.AUTHORIZATION_CODE: {
             body.grant_type = 'refresh_token'
             body.refresh_token = appConnection.refresh_token
             break
