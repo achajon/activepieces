@@ -11,7 +11,14 @@ export type BullseyeAuthType = {
     accessToken?: string;
 };
 
-export const bullseyeAuth = PieceAuth.CustomAuth({
+export const bullseyeAuth = PieceAuth.OAuth2({
+    authUrl: "https://api.bullseyelocations-staging.com/api/oauth/token",
+    required: true,
+    tokenUrl: "",
+    scope: [""],
+})
+
+/*export const bullseyeAuth = PieceAuth.CustomAuth({
     description: 'Enter custom authentication details',
     props: {
         audience: Property.ShortText({
@@ -45,9 +52,13 @@ export const bullseyeAuth = PieceAuth.CustomAuth({
         }
     },
     required: true,
-});
+});*/
 
 const validateAuth = async (auth: BullseyeAuthType) => {
+    if (auth.client_id && auth.client_secret) {
+        return;
+    }
+
     const response = await getAuthToken(auth);
 
     if (!response.accessToken) {
